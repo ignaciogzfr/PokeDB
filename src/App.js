@@ -1,18 +1,17 @@
-import logo from './logo.svg';
 import './App.css';
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
+import Header from './components/layout/Header';
+import PkList from './pages/PkList';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-      </header>
+      <Header></Header>
+      <PkList></PkList>
     </div>
   );
 }
