@@ -16,7 +16,9 @@ import TextField from '@mui/material/TextField';
 export default function PkTable(PokeList) {
 
     const [Pokemon, setPokemon] = useState([]);
+    const [FilteredPokemon, setFilteredPokemon] = useState([]);
     const [PokemonPage, setPokemonPage] = useState([]);
+    const [PokemonCount, setPokemonCount] = useState(0);
 
     const [isLoading, setIsLoading] = useState(true);
     const [Page, setPage] = useState(0);
@@ -57,7 +59,7 @@ export default function PkTable(PokeList) {
     const handleChangePage = (event, newPage) => {
         console.log('change page (event, newPage, pageSize)', event, newPage, PageSize);
         if (PageSize === -1) return;
-        setPokemonPage(Pokemon.slice(newPage * PageSize, newPage * PageSize + PageSize));
+        setPokemonPage(FilteredPokemon.slice(newPage * PageSize, newPage * PageSize + PageSize));
         setLoadingImages(true);
         setRowsLoaded({});
         setPage(newPage);
@@ -79,21 +81,24 @@ export default function PkTable(PokeList) {
         };
 
         setPageSize(newPageSize);
-        setPokemonPage(Pokemon.slice(0, newPageSize));
+        setPokemonPage(FilteredPokemon.slice(0, newPageSize));
         setIsLoading(false);
     };
 
     const handleNameFilter = (event) => {
         const searchTerm = event.toLowerCase();
-        console.log('searchTerm', searchTerm);
+        console.log('searchTerm', searchTerm, searchTerm.length);
         console.log('Pokemon', Pokemon);
 
         const filteredPokemon = Pokemon.filter((pokemon) => pokemon.name.toLowerCase().includes(searchTerm));
-        if (event.length > 2) {
-            setDataList(filteredPokemon);
-        }
         setPage(0);
         setPokemonPage(filteredPokemon.slice(0, PageSize));
+        setPokemonCount(filteredPokemon.length);
+        setFilteredPokemon(filteredPokemon);
+        if (event.length > 2) {
+            setDataList(filteredPokemon);
+            console.log('dataList', DataList);
+        }
 
     };
 
@@ -112,8 +117,9 @@ export default function PkTable(PokeList) {
                 return `${process.env.REACT_APP_POKEAPI_TYPE_SPRITE}/${typeNumber}.png`;
             });
 
-            const formattedName = data.name[0].toUpperCase() + data.name.slice(1).toLowerCase();
-            return { ...data, types, name: formattedName };
+            const formattedName = data.name[0].toUpperCase() + data.name.slice(1).toLowerCase().replace(/-/g, " ");
+            const paddedId = data.id.toString().padStart(4, "0");
+            return { ...data, types, name: formattedName, id: paddedId };
         });
 
         return PkInfo;
@@ -126,17 +132,17 @@ export default function PkTable(PokeList) {
     return (
         <>
             <Autocomplete
-                options={DataList.map((option) => option.name)}
+                options={DataList.map((option) => { return { label: option.name }; })}
                 freeSolo
                 disableClearable
+                sx={{ width: 200 }}
+
                 renderInput={(params) =>
-                    <TextField {...params} variant="outlined" placeholder="Pikachu" size="small" sx={{ alignContent: 'start' }}
-                        fullWidth={false}
+                    <TextField {...params} variant="outlined" placeholder="Pikachu" size="small"
                         slotProps={{
                             input: {
                                 ...params.inputProps,
                                 onChange: (e) => handleNameFilter(e.target.value),
-                                type: 'search'
                             }
                         }}
                     />
@@ -146,8 +152,9 @@ export default function PkTable(PokeList) {
                 <Table size="small">
                     <TableHead>
                         <TableRow>
-                            <TableCell>#</TableCell>
+                            <TableCell>Pokemon</TableCell>
                             <TableCell>Name</TableCell>
+                            <TableCell>#</TableCell>
                             <TableCell>Type</TableCell>
                         </TableRow>
                     </TableHead>
@@ -157,21 +164,22 @@ export default function PkTable(PokeList) {
                         ) : (
                             <TableBody>
                                 {PokemonPage.map((row) => {
+
                                     if (!row || !row.sprites || !row.sprites.front_default) {
-                                        console.warn("Incomplete Pokémon data:", row);
                                         return null; // Skip rendering this row
                                     }
+
                                     return (
                                         <TableRow key={row.id} onClick={() => console.log(row)}>
                                             <TableCell>
                                                 {/* Pokedex number + front sprite */}
                                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                     <img src={row.sprites.front_default} alt={`Sprite of ${row.name}`} onLoad={() => handleImageLoad(row.id)} className="poke-img" />
-                                                    {row.id}
                                                 </Box>
 
                                             </TableCell>
                                             <TableCell>{row.name}</TableCell>
+                                            <TableCell>{row.id}</TableCell>
                                             <TableCell>
                                                 {row.types.map((type, index) => (
                                                     <span key={index} style={{ marginRight: '10px' }}>
@@ -187,7 +195,7 @@ export default function PkTable(PokeList) {
                     </>
                     <TableFooter>
                         <TablePagination
-                            count={Pokemon.length}
+                            count={PokemonCount}
                             page={Page}
                             rowsPerPageOptions={[5, 10, 25, 50, { value: -1, label: 'All' }]}
                             rowsPerPage={PageSize}

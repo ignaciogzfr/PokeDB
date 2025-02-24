@@ -14,7 +14,7 @@ export default function PkList() {
         });
     }, []);
     return (
-        <Container maxWidth="lg" sx={{ backgroundColor: '#ffffff', paddingX: '10px' }}>
+        <Container maxWidth="lg" sx={{ backgroundColor: '#ffffff', paddingX: '10px', marginY: 4 }}>
             <PkPresentation></PkPresentation>
             <PkTable PokeList={Pokemon}></PkTable>
         </Container>
