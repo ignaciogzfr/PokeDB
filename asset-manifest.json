@@ -1,9 +1,10 @@
 {
   "files": {
     "main.css": "/PokeDB/static/css/main.6cfc0f46.css",
-    "main.js": "/PokeDB/static/js/main.ad5cce18.js",
+    "main.js": "/PokeDB/static/js/main.ad6443a0.js",
     "static/js/453.832b5434.chunk.js": "/PokeDB/static/js/453.832b5434.chunk.js",
     "static/media/PokeBackground.png": "/PokeDB/static/media/PokeBackground.6c8117e109b053946b0f.png",
+    "static/media/PokeLogo.png": "/PokeDB/static/media/PokeLogo.2b57f611f9a520eb9997.png",
     "static/media/roboto-latin-700-normal.woff2": "/PokeDB/static/media/roboto-latin-700-normal.4535474e1cf8598695ad.woff2",
     "static/media/roboto-latin-500-normal.woff2": "/PokeDB/static/media/roboto-latin-500-normal.7077203b1982951ecf76.woff2",
     "static/media/roboto-latin-400-normal.woff2": "/PokeDB/static/media/roboto-latin-400-normal.297d48e1b5a10c0831a9.woff2",
@@ -56,17 +57,17 @@
     "static/media/roboto-greek-ext-300-normal.woff2": "/PokeDB/static/media/roboto-greek-ext-300-normal.d6049cb54aa6fbe14c42.woff2",
     "static/media/roboto-greek-ext-400-normal.woff2": "/PokeDB/static/media/roboto-greek-ext-400-normal.1df4abad55796d11a0c8.woff2",
     "static/media/roboto-greek-ext-700-normal.woff2": "/PokeDB/static/media/roboto-greek-ext-700-normal.2dd6febad11502dec6a6.woff2",
+    "index.html": "/PokeDB/index.html",
     "static/media/roboto-greek-ext-500-normal.woff": "/PokeDB/static/media/roboto-greek-ext-500-normal.fd28d9c008bf3af1bed7.woff",
     "static/media/roboto-greek-ext-700-normal.woff": "/PokeDB/static/media/roboto-greek-ext-700-normal.4abdc9fff4507f17d726.woff",
     "static/media/roboto-greek-ext-300-normal.woff": "/PokeDB/static/media/roboto-greek-ext-300-normal.b590dbe5c639944366d1.woff",
     "static/media/roboto-greek-ext-400-normal.woff": "/PokeDB/static/media/roboto-greek-ext-400-normal.16eb83b4a3b1ea994243.woff",
-    "index.html": "/PokeDB/index.html",
     "main.6cfc0f46.css.map": "/PokeDB/static/css/main.6cfc0f46.css.map",
-    "main.ad5cce18.js.map": "/PokeDB/static/js/main.ad5cce18.js.map",
+    "main.ad6443a0.js.map": "/PokeDB/static/js/main.ad6443a0.js.map",
     "453.832b5434.chunk.js.map": "/PokeDB/static/js/453.832b5434.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6cfc0f46.css",
-    "static/js/main.ad5cce18.js"
+    "static/js/main.ad6443a0.js"
   ]
 }
