@@ -53,6 +53,7 @@ export default function PkTable(PokeList) {
         setPokemonPage(formattedPokemon.slice(0, PageSize));
         setPage(0);
         setIsLoading(false);
+        setPokemonCount(formattedPokemon.length);
         return true;
     };
 
