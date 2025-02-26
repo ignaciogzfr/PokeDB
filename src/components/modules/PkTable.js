@@ -11,22 +11,29 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { Autocomplete, TableFooter, TablePagination } from "@mui/material";
 import TextField from '@mui/material/TextField';
-
+import useSetPage from "../Hooks/useSetPage";
+import PkDetails from "./PkDetails/PkDetails";
+import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 
 export default function PkTable(PokeList) {
 
     const [Pokemon, setPokemon] = useState([]);
-    const [FilteredPokemon, setFilteredPokemon] = useState([]);
-    const [PokemonPage, setPokemonPage] = useState([]);
-    const [PokemonCount, setPokemonCount] = useState(0);
-
-    const [isLoading, setIsLoading] = useState(true);
-    const [Page, setPage] = useState(0);
-    const [PageSize, setPageSize] = useState(5);
     const [DataList, setDataList] = useState([]);
 
-    const [loadingImages, setLoadingImages] = useState(false);
-    const [rowsLoaded, setRowsLoaded] = useState({});
+    const [openDrawer, setOpenDrawer] = useState(false);
+    const [SelectedPokemon, setSelectedPokemon] = useState({});
+
+
+    const {
+        isLoading,
+        PokemonPage,
+        PokemonCount,
+        Page,
+        PageSize,
+        setFilteredPokemon,
+        handleChangePage,
+        handleChangePageSize
+    } = useSetPage([], 5);
 
     useEffect(() => {
 
@@ -38,70 +45,34 @@ export default function PkTable(PokeList) {
 
     }, [PokeList]);
 
-    useEffect(() => {
-
-        const rowsToLoad = PokemonPage.filter((pokemon) => !rowsLoaded[pokemon.id]);
-        if (rowsToLoad.length === PokemonPage.length) {
-            setLoadingImages(false);
-        }
-    }, [rowsLoaded, PokemonPage]);
+    const toggleDrawer = (open) => (event) => {
+        setOpenDrawer(open);
+    };
 
     const callFormatPokemon = async (Pokemon) => {
 
         const formattedPokemon = await formatPokemon(Pokemon);
+        console.log('Formatted Pokemon', formattedPokemon);
         setPokemon(formattedPokemon);
-        setPokemonPage(formattedPokemon.slice(0, PageSize));
-        setPage(0);
-        setIsLoading(false);
-        setPokemonCount(formattedPokemon.length);
         setFilteredPokemon(formattedPokemon);
+
         return true;
     };
 
-    const handleChangePage = (event, newPage) => {
-        console.log('change page (event, newPage, pageSize)', event, newPage, PageSize);
-        if (PageSize === -1) return;
-        setPokemonPage(FilteredPokemon.slice(newPage * PageSize, newPage * PageSize + PageSize));
-        setLoadingImages(true);
-        setRowsLoaded({});
-        setPage(newPage);
-    };
 
-    const handleChangePageSize = (event) => {
-        const newPageSize = event.target.value;
-        setLoadingImages(true);
-        setRowsLoaded({});
-        setPage(0);
-        console.log('change page size', event);
+    const handleNameFilter = (inputValue) => {
 
-        if (event.target.value === -1) {
-            setPageSize(-1);
-            setPokemonPage(Pokemon);
-            setPage(0);
-            setIsLoading(false);
-            return;
-        };
-
-        setPageSize(newPageSize);
-        setPokemonPage(FilteredPokemon.slice(0, newPageSize));
-        setIsLoading(false);
-    };
-
-    const handleNameFilter = (event) => {
-        const searchTerm = event.toLowerCase();
-        console.log('searchTerm', searchTerm, searchTerm.length);
-        console.log('Pokemon', Pokemon);
-
+        const searchTerm = inputValue.toLowerCase();
         const filteredPokemon = Pokemon.filter((pokemon) => pokemon.name.toLowerCase().includes(searchTerm));
-        setPage(0);
-        setPokemonPage(filteredPokemon.slice(0, PageSize));
-        setPokemonCount(filteredPokemon.length);
         setFilteredPokemon(filteredPokemon);
-        if (event.length > 2) {
-            setDataList(filteredPokemon);
-            console.log('dataList', DataList);
+        if (inputValue.length > 2) {
+            const labeledPokemon = filteredPokemon.map((pokemon) => { return { label: pokemon.name }; });
+            setDataList(filteredPokemon.map((pokemon) => { return { label: pokemon.name }; }));
+            DataList.push(...labeledPokemon);
+            console.log('DataList', DataList);
+        } else {
+            setDataList([]);
         }
-
     };
 
 
@@ -112,7 +83,8 @@ export default function PkTable(PokeList) {
     };
 
     const fetchPokemonURL = async (url) => {
-        const PkInfo = fetch(url).then((res) => res.json()).then((data) => {
+        const PkInfo = fetch(url).then((res) => res.json()).then(async (data) => {
+
             const types = data.types.map((type) => {
                 const typeUrl = type.type.url.split("/");
                 const typeNumber = typeUrl[typeUrl.length - 2];
@@ -127,27 +99,31 @@ export default function PkTable(PokeList) {
         return PkInfo;
     };
 
-    const handleImageLoad = (id) => {
-        setRowsLoaded({ ...rowsLoaded, [id]: true });
+    const callDetails = (Pokemon) => {
+
+        setSelectedPokemon(Pokemon);
+        setOpenDrawer(true);
     };
+
 
     return (
         <>
+            <SwipeableDrawer
+                anchor="right"
+                open={openDrawer}
+                onClose={toggleDrawer(false)}
+                onOpen={toggleDrawer(true)}
+            >
+                {openDrawer && <PkDetails Pokemon={SelectedPokemon} open={openDrawer} onOpen={toggleDrawer(true)} onClose={toggleDrawer(false)} />}
+            </SwipeableDrawer >
             <Autocomplete
-                options={DataList.map((option) => { return { label: option.name }; })}
+                options={DataList}
                 freeSolo
                 disableClearable
                 sx={{ width: 200 }}
-
+                onInputChange={(e, inputValue) => handleNameFilter(inputValue)}
                 renderInput={(params) =>
-                    <TextField {...params} variant="outlined" placeholder="Pikachu" size="small"
-                        slotProps={{
-                            input: {
-                                ...params.inputProps,
-                                onChange: (e) => handleNameFilter(e.target.value),
-                            }
-                        }}
-                    />
+                    <TextField {...params} variant="outlined" placeholder="Pikachu" size="small" />
                 } />
             <TableContainer component={Paper} sx={{ marginY: 2, paddingY: 2 }}>
 
@@ -161,22 +137,17 @@ export default function PkTable(PokeList) {
                         </TableRow>
                     </TableHead>
                     <>
-                        {isLoading || loadingImages ? (
-                            <CircularProgress size={80} sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-                        ) : (
-                            <TableBody>
-                                {PokemonPage.map((row) => {
-
-                                    if (!row || !row.sprites || !row.sprites.front_default) {
-                                        return null; // Skip rendering this row
-                                    }
+                        <TableBody>
+                            {isLoading && <CircularProgress size={80} sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />}
+                            {!isLoading &&
+                                PokemonPage.map((row) => {
 
                                     return (
-                                        <TableRow key={row.id} onClick={() => console.log(row)}>
+                                        <TableRow key={row.id} onClick={() => callDetails(row)} hover sx={{ cursor: 'pointer' }}>
                                             <TableCell>
                                                 {/* Pokedex number + front sprite */}
                                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <img src={row.sprites.front_default} alt={`Sprite of ${row.name}`} onLoad={() => handleImageLoad(row.id)} className="poke-img" />
+                                                    <img src={row.sprites.front_default} alt={`Sprite of ${row.name}`} className="poke-img" />
                                                 </Box>
 
                                             </TableCell>
@@ -184,16 +155,15 @@ export default function PkTable(PokeList) {
                                             <TableCell>{row.id}</TableCell>
                                             <TableCell>
                                                 {row.types.map((type, index) => (
-                                                    <span key={index} style={{ marginRight: '10px' }}>
-                                                        <img src={type} alt={type} className="type-img" onLoad={() => handleImageLoad(`${row.id}-type-${index}`)} />
-                                                    </span>
+                                                    <img src={type} alt={type} className="type-img" />
                                                 ))}
                                             </TableCell>
                                         </TableRow>
                                     );
-                                })}
-                            </TableBody>
-                        )}
+                                })
+                            }
+
+                        </TableBody>
                     </>
                     <TableFooter>
                         <TablePagination
@@ -210,6 +180,7 @@ export default function PkTable(PokeList) {
                     </TableFooter>
                 </Table>
             </TableContainer>
+
         </>
     );
 };

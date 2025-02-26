@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import PkTable from "../components/modules/PkTable";
+import PkTable from "../Components/Modules/PkTable";
 import { Container } from "@mui/material";
-import PkPresentation from "../components/modules/PkPresentation";
+import PkPresentation from "../Components/Modules/PkPresentation";
 
 export default function PkList() {
     const [Pokemon, setPokemons] = useState([]);

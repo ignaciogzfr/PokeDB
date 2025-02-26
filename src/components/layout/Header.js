@@ -1,7 +1,7 @@
 import React from "react";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import PokeLogo from '../../img/PokeLogo.png';
+import PokeLogo from '../../Img/PokeLogo.png';
 import { Typography } from "@mui/material";
 
 

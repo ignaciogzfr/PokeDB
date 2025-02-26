@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
-import Header from './components/layout/Header';
-import PkList from './pages/PkList';
+import Header from './Components/Layout/Header';
+import PkList from './Pages/PkList';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';

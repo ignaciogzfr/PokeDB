@@ -1,7 +1,8 @@
-.App{
-  background-image: url('./img/PokeBackground.png');
+.App {
+  background-image: url('./Img/PokeBackground.png');
   min-height: 100vh;
 }
+
 .App {
   text-align: center;
 }
@@ -21,15 +22,21 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
-.type-img{
+.type-img {
   max-width: 70px;
 }
 
-.poke-img{
-  max-width: 50px
+.poke-img {
+  max-width: 50px;
+  margin-right: 10px;
+}
+
+.poke-img-detailed {
+  max-width: 80px;
 }
