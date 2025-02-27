@@ -12,6 +12,7 @@ import PkBaseStats from "./PkBaseStats";
 import PkMoveList from "./PkMoveList";
 import PkTmList from "./PkTmList";
 import PkEggMoves from "./PkEggMoves";
+import MovesDictionary from "../../../MovesDictionary";
 
 const PkDetails = ({ Pokemon, open, onOpen, onClose }) => {
 
@@ -24,9 +25,16 @@ const PkDetails = ({ Pokemon, open, onOpen, onClose }) => {
         'fr': '',
         'de': ''
     });
+    const [Moves, setMoves] = useState([]);
+    const [TMMoves, setTMMoves] = useState([]);
+    const [EggMoves, setEggMoves] = useState([]);
+    const [isLoading, setIsLoading] = useState(true)
     const Artwork = Pokemon.sprites.other["official-artwork"].front_default;
     const MainSprite = Pokemon.sprites.front_default;
 
+
+    const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+    const removeDashes = (str) => str.replace(/-+/g, ' ');
 
     useEffect(() => {
         if (Pokemon) {
@@ -41,6 +49,7 @@ const PkDetails = ({ Pokemon, open, onOpen, onClose }) => {
                 setEvolutionChain(evolutionChain);
                 const abilities = await fetchAbilities(Pokemon.abilities);
                 setAbilities(abilities);
+                await fetchMoves(Pokemon.moves);
 
 
             };
@@ -91,12 +100,64 @@ const PkDetails = ({ Pokemon, open, onOpen, onClose }) => {
             const response = await fetch(ability.ability.url);
             const data = await response.json();
             const findEntryEN = data.effect_entries.find(entry => entry.language.name === 'en');
-            newAbilities.push({ ...ability.ability, effect: findEntryEN.effect, hidden: ability.is_hidden });
+            newAbilities.push({ ...ability.ability, effect: findEntryEN.effect, hidden: ability.is_hidden, name: capitalize(ability.ability.name) });
         }
 
         return newAbilities;
     };
 
+    const fetchMoves = async (moves) => {
+        const LevelUp = [];
+        const TMs = [];
+        const Egg = [];
+        for (const move of moves) {
+            const response = await fetch(move.move.url);
+            const findMove = await response.json();
+
+            const FilterFlavorText = findMove.flavor_text_entries.filter((entry) => entry.language.name === 'en');
+            const moveInfo = {
+                ID: findMove.id,
+                Name: removeDashes(capitalize(findMove.name)),
+                Type: MovesDictionary[findMove.type.name],
+                Category: MovesDictionary[findMove.damage_class.name],
+                Power: findMove.power ?? "-",
+                PP: findMove.pp ?? "-",
+                Accuracy: findMove.accuracy ?? "-",
+                EffectChance: findMove.effect_chance ?? "-",
+                FlavorText: FilterFlavorText[FilterFlavorText.length - 1]?.flavor_text,
+            };
+
+            const isLevelUpMove = move.version_group_details.find((version) => { return version.move_learn_method.name === 'level-up' && version.version_group.name === 'scarlet-violet'; });
+            const isTMMove = move.version_group_details.find((version) => { return version.move_learn_method.name === 'machine' && version.version_group.name === 'scarlet-violet'; });
+            const isEggMove = move.version_group_details.find((version) => { return version.move_learn_method.name === 'egg' && version.version_group.name === 'scarlet-violet'; });
+            const isMoveInArray = (Array) => {
+                return Array.find((item) => item.ID === moveInfo.ID);
+            };
+            if (isLevelUpMove && !isMoveInArray(LevelUp)) {
+                LevelUp.push({ ...moveInfo, LearnedAt: isLevelUpMove.level_learned_at });
+            }
+            if (isTMMove && !isMoveInArray(TMs)) {
+
+                const ScarletVioletTM = findMove.machines.find((item) => item.version_group.name === 'scarlet-violet');
+                await fetch(ScarletVioletTM.machine.url).then((res) => res.json()).then((data) => {
+                    TMs.push({ ...moveInfo, TM: data.item.name.replace("tm", "") });
+                    
+                    return data;
+                });
+                
+
+            }
+            if (isEggMove && !isMoveInArray(Egg)) {
+                Egg.push(moveInfo);
+            }
+
+        }
+
+        setMoves(LevelUp.sort((a, b) => a.LearnedAt - b.LearnedAt));
+        setTMMoves(TMs.sort((a, b) => a.TM - b.TM));
+        setEggMoves(Egg);
+        setIsLoading(false);
+    };
 
     return (
         <>
@@ -106,8 +167,8 @@ const PkDetails = ({ Pokemon, open, onOpen, onClose }) => {
                 </IconButton>
 
             </Box>
-            {Pokemon && (
-                <Container sx={{ width: [300, 300, 600] }} >
+            {Pokemon && isLoading === false && (
+                <Container sx={{ width: [300, 500, 900] }} >
                     <Box style={{ textAlign: "center", display: 'flex', justifyContent: 'center' }}>
                         {MainSprite && <img src={MainSprite} alt={`Sprite of ${Pokemon.name}`} className="poke-img-detailed" />}
                         <Typography variant="h6" sx={{ marginTop: 3 }}> {Pokemon.name} #{Pokemon.id}</Typography>
@@ -138,15 +199,15 @@ const PkDetails = ({ Pokemon, open, onOpen, onClose }) => {
 
                     <Divider style={{ marginTop: 13 }} />
 
-                    <PkMoveList Moves={Pokemon.moves}>
+                    <PkMoveList Moves={Moves}>
 
                     </PkMoveList>
 
-                    <PkTmList Moves={Pokemon.moves}>
+                    <PkTmList Moves={TMMoves}>
 
                     </PkTmList>
 
-                    <PkEggMoves Moves={Pokemon.moves}>
+                    <PkEggMoves Moves={EggMoves}>
 
                     </PkEggMoves>
 

@@ -6,7 +6,6 @@ import { Typography } from "@mui/material";
 export default function PkAbilities({ Abilities }) {
 
 
-    const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
     return (
         <Grid container spacing={2} size={12} sx={{ marginTop: 3 }}>
             
@@ -15,7 +14,7 @@ export default function PkAbilities({ Abilities }) {
                 {Abilities.map((ability, index) => {
                     return (
                         <Grid sx={{ alignItems: 'center', marginBottom: 3 }}>
-                            <Typography sx={{ textAlign: 'left', fontSize: 14, }} fontWeight={500} fontSize={14}> {capitalize(ability.name)} {ability.hidden && '(Hidden)'} </Typography>
+                            <Typography sx={{ textAlign: 'left', fontSize: 14, }} fontWeight={500} fontSize={14}> {ability.name} {ability.hidden && '(Hidden)'} </Typography>
                             {ability.effect && <Typography sx={{ textAlign: 'left', marginTop: 2, marginLeft: 2 }} fontWeight={400} fontSize={13}> {ability.effect}</Typography>}
                         </Grid>
                     );

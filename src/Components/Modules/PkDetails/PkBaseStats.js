@@ -13,7 +13,7 @@ export default function PkBaseStats({ BaseStats }) {
     return (<>
 
 
-        <Grid container>
+        <Grid container >
             <Grid size={12}>
                 <Typography fontSize={16} fontWeight={600} sx={{ marginTop: 3, textAlign: 'center' }}>Base Stats</Typography>
             </Grid>
