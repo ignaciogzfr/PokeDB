@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import { Typography } from "@mui/material";
 
-export default function PkBasicInfo({ Pokemon, Species, Artwork, PokemonNames }) {
+export default function PkBasicInfo({ Pokemon, Species, Artwork }) {
     return (
         <>
             <Grid size={{ xs: 12 }} sx={{ textAlign: 'center' }}>

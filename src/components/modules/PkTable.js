@@ -54,6 +54,10 @@ export default function PkTable(PokeList) {
         setOpenDrawer(open);
     };
 
+    const formatPkmnName = (name) => {
+        return name[0].toUpperCase() + name.slice(1).toLowerCase().replace(/-/g, " ");
+    };
+
     const callFormatPokemon = async (Pokemon) => {
 
         const formattedPokemon = await formatPokemon(Pokemon);
@@ -81,11 +85,11 @@ export default function PkTable(PokeList) {
 
     const formatPokemon = async (List) => {
         return await Promise.all(List.PokeList.map((pokemon) => {
-            return fetchPokemonURL(pokemon.url);
+            return fetchPokemonURL(pokemon.url, pokemon);
         }));
     };
 
-    const fetchPokemonURL = async (url) => {
+    const fetchPokemonURL = async (url, pokemon) => {
         const PkInfo = fetch(url).then((res) => res.json()).then(async (data) => {
 
             const types = data.types.map((type) => {
@@ -94,8 +98,10 @@ export default function PkTable(PokeList) {
                 return `${process.env.REACT_APP_POKEAPI_TYPE_SPRITE}/${typeNumber}.png`;
             });
 
-            const formattedName = data.name[0].toUpperCase() + data.name.slice(1).toLowerCase().replace(/-/g, " ");
+            const formattedName = formatPkmnName(data.name);
             const paddedId = data.id.toString().padStart(4, "0");
+            pokemon.sprites = data.sprites;
+
             return { ...data, types, name: formattedName, id: paddedId };
         });
 
@@ -108,6 +114,14 @@ export default function PkTable(PokeList) {
         setOpenDrawer(true);
     };
 
+    const findSprite = (PokemonName) => {
+
+        const findPokemon = PokeList.PokeList.find((pkmn) => formatPkmnName(pkmn.name).toLowerCase() === PokemonName.toLowerCase());
+        if (!findPokemon) {
+            return false;
+        }
+        return findPokemon.sprites;
+    };
 
     return (
         <>
@@ -117,7 +131,7 @@ export default function PkTable(PokeList) {
                 onClose={toggleDrawer(false)}
                 onOpen={toggleDrawer(true)}
             >
-                {openDrawer && <PkDetails Pokemon={SelectedPokemon} open={openDrawer} onOpen={toggleDrawer(true)} onClose={toggleDrawer(false)} />}
+                {openDrawer && <PkDetails Pokemon={SelectedPokemon} open={openDrawer} onOpen={toggleDrawer(true)} onClose={toggleDrawer(false)} findSprite={findSprite} />}
             </SwipeableDrawer >
             <Autocomplete
                 options={DataList}
