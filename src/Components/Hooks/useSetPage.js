@@ -16,12 +16,12 @@ const useSetPage = () => {
         setPokemonPage(FilteredPokemon.slice(Page * PageSize, Page * PageSize + PageSize));
         setPokemonCount(FilteredPokemon.length);
         setFilteredPokemon(FilteredPokemon);
-        setIsLoading(false);
     };
 
     useEffect(() => {
-        console.log('Filtered Pokemon changed', FilteredPokemon);
-        const updateTable = async () => await updatePage(FilteredPokemon);
+        const updateTable = async () => {
+            await updatePage(FilteredPokemon);
+        };
         updateTable(FilteredPokemon);
     }, [FilteredPokemon]);
 
@@ -30,7 +30,6 @@ const useSetPage = () => {
         if (PageSize === -1) return;
         setPokemonPage(FilteredPokemon.slice(newPage * PageSize, newPage * PageSize + PageSize));
         setPage(newPage);
-        setIsLoading(false);
     };
 
     const handleChangePageSize = (event) => {
@@ -38,7 +37,6 @@ const useSetPage = () => {
         setPageSize(parseInt(event.target.value, 10));
         setPage(0);
         setPokemonPage(FilteredPokemon.slice(0, event.target.value));
-        setIsLoading(false);
     };
 
     return {
@@ -51,7 +49,8 @@ const useSetPage = () => {
         updatePage,
         handleChangePage,
         handleChangePageSize,
-        setFilteredPokemon
+        setFilteredPokemon,
+        setIsLoading
     };
 
 };

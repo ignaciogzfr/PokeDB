@@ -32,7 +32,8 @@ export default function PkTable(PokeList) {
         PageSize,
         setFilteredPokemon,
         handleChangePage,
-        handleChangePageSize
+        handleChangePageSize,
+        setIsLoading
     } = useSetPage([], 5);
 
     useEffect(() => {
@@ -45,6 +46,10 @@ export default function PkTable(PokeList) {
 
     }, [PokeList]);
 
+    useEffect(() => {
+        setIsLoading(false);
+    }, [PokemonPage]);
+
     const toggleDrawer = (open) => (event) => {
         setOpenDrawer(open);
     };
@@ -52,7 +57,6 @@ export default function PkTable(PokeList) {
     const callFormatPokemon = async (Pokemon) => {
 
         const formattedPokemon = await formatPokemon(Pokemon);
-        console.log('Formatted Pokemon', formattedPokemon);
         setPokemon(formattedPokemon);
         setFilteredPokemon(formattedPokemon);
 
@@ -69,7 +73,6 @@ export default function PkTable(PokeList) {
             const labeledPokemon = filteredPokemon.map((pokemon) => { return { label: pokemon.name }; });
             setDataList(filteredPokemon.map((pokemon) => { return { label: pokemon.name }; }));
             DataList.push(...labeledPokemon);
-            console.log('DataList', DataList);
         } else {
             setDataList([]);
         }
@@ -125,7 +128,10 @@ export default function PkTable(PokeList) {
                 renderInput={(params) =>
                     <TextField {...params} variant="outlined" placeholder="Pikachu" size="small" />
                 } />
-            <TableContainer component={Paper} sx={{ marginY: 2, paddingY: 2 }}>
+
+            {isLoading && <CircularProgress size={80} sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />}
+
+            {!isLoading && <TableContainer component={Paper} sx={{ marginY: 2, paddingY: 2 }}>
 
                 <Table size="small">
                     <TableHead>
@@ -138,29 +144,27 @@ export default function PkTable(PokeList) {
                     </TableHead>
                     <>
                         <TableBody>
-                            {isLoading && <CircularProgress size={80} sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />}
-                            {!isLoading &&
-                                PokemonPage.map((row) => {
+                            {PokemonPage.map((row) => {
 
-                                    return (
-                                        <TableRow key={row.id} onClick={() => callDetails(row)} hover sx={{ cursor: 'pointer' }}>
-                                            <TableCell>
-                                                {/* Pokedex number + front sprite */}
-                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <img src={row.sprites.front_default} alt={`Sprite of ${row.name}`} className="poke-img" />
-                                                </Box>
+                                return (
+                                    <TableRow key={row.id} onClick={() => callDetails(row)} hover sx={{ cursor: 'pointer' }}>
+                                        <TableCell>
+                                            {/* Pokedex number + front sprite */}
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <img src={row.sprites.front_default} alt={`Sprite of ${row.name}`} className="poke-img" />
+                                            </Box>
 
-                                            </TableCell>
-                                            <TableCell>{row.name}</TableCell>
-                                            <TableCell>{row.id}</TableCell>
-                                            <TableCell>
-                                                {row.types.map((type, index) => (
-                                                    <img src={type} alt={type} className="type-img" />
-                                                ))}
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })
+                                        </TableCell>
+                                        <TableCell>{row.name}</TableCell>
+                                        <TableCell>{row.id}</TableCell>
+                                        <TableCell>
+                                            {row.types.map((type, index) => (
+                                                <img src={type} alt={type} className="type-img" />
+                                            ))}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
                             }
 
                         </TableBody>
@@ -180,6 +184,7 @@ export default function PkTable(PokeList) {
                     </TableFooter>
                 </Table>
             </TableContainer>
+            }
 
         </>
     );
